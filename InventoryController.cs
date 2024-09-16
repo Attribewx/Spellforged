@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
@@ -9,13 +10,20 @@ public class InventoryController : MonoBehaviour
 
     private GameObject player;
     private Attacks attacks;
+    private Inventory inventory;
+    public GameObject pauseMenu;
     public GameObject menu;
     public Text[] butts;
     public RectTransform slides;
+    public AudioMixer audioSliders;
     private Vector3 starto;
     private CanvasGroup canvasG;
+    private CanvasGroup canvasM;
     private Image[] elements;
     private Button[] elementToggles;
+    [SerializeField] private Slider masterSlider;
+    [SerializeField] private Slider soundSlider;
+    [SerializeField] private Slider musicSlider;
     [SerializeField] private Material matter;
     [SerializeField] private GameObject elementsHolder;
     [SerializeField] private float runeDist = 50;
@@ -25,14 +33,18 @@ public class InventoryController : MonoBehaviour
     private float pageNum;
     [SerializeField]private float leanTime = .5f;
     private float leanTimer;
+
+
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
         attacks = player.GetComponent<Attacks>();
         starto = slides.position;
         canvasG = menu.GetComponent<CanvasGroup>();
+        canvasM = pauseMenu.GetComponent<CanvasGroup>();
         elements = elementsHolder.GetComponentsInChildren<Image>();
         elementToggles = elementsHolder.GetComponentsInChildren<Button>();
+        inventory = GetComponent<Inventory>();
     }
 
     void Update()
@@ -43,6 +55,23 @@ public class InventoryController : MonoBehaviour
             if(menu.activeInHierarchy)
                 InventoryViewer();
 
+
+            if (Input.GetButtonDown("Cancel"))
+            {
+                GamePersist.instance.Save();
+                if (!pauseMenu.activeInHierarchy)
+                {
+                    pauseMenu.SetActive(true);
+                    canvasM.alpha = 0;
+                    canvasM.LeanAlpha(1, .3f);
+                    attacks.SetAttack(false);
+                }
+                else
+                {
+                    canvasM.LeanAlpha(0, .3f).setOnComplete(PauseMenuEnabled);
+                    attacks.SetAttack(true);
+                }
+            }
             if (Input.GetKeyDown(KeyCode.R))
             {
                 if (!menu.activeInHierarchy)
@@ -116,6 +145,11 @@ public class InventoryController : MonoBehaviour
         {
             attacks.allTehUnloks[i] = true;
         }
+    }
+
+    public void UnlockAllRunes()
+    {
+        inventory.UnlockAllRunes();
     }
 
     public void ChangeTheUIPage(float xPos)
@@ -224,5 +258,26 @@ public class InventoryController : MonoBehaviour
         {
             elements[i + 1].material = null;
         }
+    }
+
+    public void PauseMenuEnabled()
+    {
+        pauseMenu.SetActive(false);
+    }
+
+    public void QuitGame()
+    {
+        GamePersist.instance.Save();
+        Application.Quit();
+    }
+
+    public void ChangeVolume(string channel)
+    {
+        if (channel.Equals("Master"))
+            audioSliders.SetFloat("Master", masterSlider.value);
+        if (channel.Equals("Player Sounds"))
+            audioSliders.SetFloat("Player Sounds", soundSlider.value);
+        if (channel.Equals("Music"))
+            audioSliders.SetFloat("Music", musicSlider.value);
     }
 }

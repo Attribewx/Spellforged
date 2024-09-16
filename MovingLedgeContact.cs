@@ -10,10 +10,10 @@ public class MovingLedgeContact : MovingPlatform
     private Vector3 targPOS;
     private Vector3 speedTracked;
     private Vector3 dir;
-    [SerializeField]
-    private float stopTime;
+    [SerializeField] private float stopTime;
     private bool goingLeft;
     private bool cooling;
+    [SerializeField] private GameObject targPosIcon;
     
     new void Start()
     {
@@ -28,6 +28,9 @@ public class MovingLedgeContact : MovingPlatform
 
         speedTracked = speed;
         speed = Vector3.zero;
+
+        if (targPosIcon)
+            Instantiate(targPosIcon, targPOS, Quaternion.identity);
     }
 
     new void OnCollisionEnter2D(Collision2D collision)
@@ -70,6 +73,11 @@ public class MovingLedgeContact : MovingPlatform
                 ChangeLightColors(startLightColor);
             }
         }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.DrawWireSphere(targPOS, .1f);
     }
 
     IEnumerator PlatformCooldown(float time)

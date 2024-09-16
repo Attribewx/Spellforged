@@ -15,6 +15,9 @@ public class Inventory : MonoBehaviour
     [Header("Rune Effect Attributes"), Space(10), SerializeField] int RuneOfHealthAMT = 100;
     [SerializeField] private int RuneOfManaAMT = 50;
     [SerializeField] private int RuneOfLifeAMT = 150;
+    [SerializeField] private int RuneOfSacrificeHP = 200;
+    [SerializeField] private int RuneOfSacrificeMana = -50;
+    [SerializeField] private int RuneOfSpectreDashMana = 30;
 
     void Awake()
     {
@@ -89,6 +92,7 @@ public class Inventory : MonoBehaviour
     public void OnEquipEffects(int rune)
     {
         Health Hp = player.GetComponent<Health>();
+        Attacks attack = player.GetComponent<Attacks>();
         switch (rune)
         {
             case ((int)Runes.Rune_of_Health):
@@ -96,7 +100,6 @@ public class Inventory : MonoBehaviour
                 Hp.HealUp(Hp.maxHealth);
                 break;
             case (int)Runes.Rune_of_Mana:
-                Attacks attack = player.GetComponent<Attacks>();
                 attack.IncreaseMaxMana(RuneOfManaAMT);
                 attack.ManaUp((int)attack.maxMana);
                 break;
@@ -104,12 +107,19 @@ public class Inventory : MonoBehaviour
                 Hp.IncreaseMaxHealth(RuneOfLifeAMT);
                 Hp.HealUp(Hp.maxHealth);
                 break;
+            case (int)Runes.Rune_of_Sacrifice:
+                Hp.IncreaseMaxHealth(RuneOfSacrificeHP);
+                Hp.HealUp(RuneOfSacrificeHP);
+                attack.IncreaseMaxMana(RuneOfSacrificeMana);
+                attack.ManaUp(RuneOfSacrificeMana);
+                break;
         }
     }
 
     public void OnUnequipEffects(int rune)
     {
         Health Hp = player.GetComponent<Health>();
+        Attacks attack = player.GetComponent<Attacks>();
         switch (rune)
         {
             case (int)Runes.Rune_of_Health:
@@ -117,7 +127,6 @@ public class Inventory : MonoBehaviour
                 Hp.HealUp(Hp.maxHealth);
                 break;
             case (int)Runes.Rune_of_Mana:
-                Attacks attack = player.GetComponent<Attacks>();
                 attack.IncreaseMaxMana(-RuneOfManaAMT);
                 attack.ManaUp((int)attack.maxMana);
                 break;
@@ -125,6 +134,25 @@ public class Inventory : MonoBehaviour
                 Hp.IncreaseMaxHealth(-RuneOfLifeAMT);
                 Hp.HealUp(Hp.maxHealth);
                 break;
+            case (int)Runes.Rune_of_Sacrifice:
+                Hp.IncreaseMaxHealth(-RuneOfSacrificeHP);
+                Hp.HealUp(-RuneOfSacrificeHP);
+                attack.IncreaseMaxMana(-RuneOfSacrificeMana);
+                attack.ManaUp(-RuneOfSacrificeMana);
+                break;
         }
+    }
+
+    public void UnlockAllRunes()
+    {
+        for (int i = 0; i < 100; i++)
+        {
+            Add(i);
+        }
+    }
+
+    public int GetSpectre()
+    {
+        return RuneOfSpectreDashMana;
     }
 }

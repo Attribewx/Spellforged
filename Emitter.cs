@@ -13,6 +13,8 @@ public class Emitter : MonoBehaviour
 
     [SerializeField, Header("Emission Variance")] private float xRange = 0;
     [SerializeField] private float yRange = 0;
+    private bool able;
+    private float ableTime;
 
 
     void Start()
@@ -25,10 +27,24 @@ public class Emitter : MonoBehaviour
     {
         emissionTime += Time.deltaTime;
 
-        if (emissionTime > nextEmission)
+
+        if (Time.time > ableTime)
+            able = true;
+        else
+            able = false;
+
+
+        if (emissionTime > nextEmission && able)
         {
             Emit();
         }
+    }
+
+    public void Disabled(float disableTime)
+    {
+        ableTime = Time.time + disableTime;
+        nextEmission = Time.time + disableTime;
+        
     }
 
     void Emit()

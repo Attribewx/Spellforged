@@ -25,17 +25,40 @@ public class PlatformingSpikes : MonoBehaviour
     {
         if(collision.tag == "Player" && timer <= Time.time)
         {
+
+            //Fade to black
             transition.SetTrigger("Start");
-            playerHealth.TakeDamage(damage, 100, 800, ElementType.Physical);
+
+            //check for player
+            if(playerHealth)
+                playerHealth.TakeDamage(damage, 100, 800, ElementType.Physical);
+            else
+            {
+                playerHealth = FindObjectOfType<Movement>().GetComponent<Health>();
+                playerHealth.TakeDamage(damage, 100, 800, ElementType.Physical);
+            }
+
+            //invicibility sorta
             timer = Time.time + waitTime;
         }
     }
 
     public void MovePlayer()
     {
-        canMove.dashTimeLeft = 0;
-        canMove.jTest = false;
-        canMove.transform.position = returnPos.position;
-        cam.transform.position = new Vector3(returnPos.position.x, returnPos.position.y, cam.transform.position.z);
+        if (canMove)
+        {
+            canMove.dashTimeLeft = 0;
+            canMove.jumpKeyDown = false;
+            canMove.transform.position = returnPos.position;
+            cam.transform.position = new Vector3(returnPos.position.x, returnPos.position.y, cam.transform.position.z);
+        }
+        else
+        {
+            canMove = FindObjectOfType<Movement>();
+            canMove.dashTimeLeft = 0;
+            canMove.jumpKeyDown = false;
+            canMove.transform.position = returnPos.position;
+            cam.transform.position = new Vector3(returnPos.position.x, returnPos.position.y, cam.transform.position.z);
+        }
     }
 }

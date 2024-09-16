@@ -57,7 +57,7 @@ public abstract class MovingPlatform : MonoBehaviour
         }
     }
 
-    void FixedUpdate()
+    public void FixedUpdate()
     {
         rb.velocity = speed * Time.fixedDeltaTime;
         if (rigs.Count > 0)
@@ -65,12 +65,16 @@ public abstract class MovingPlatform : MonoBehaviour
             for (int i = 0; i < rigs.Count; i++)
             {
                 Rigidbody2D rug = rigs[i];
-                if(speed.y <= 0) //Downward Diagonal Movement
+                if (playerSpeeds.GetThePower())
                 {
-                    rug.velocity = (Vector3)rug.velocity + (speed * Time.fixedDeltaTime);
-                }else if(speed.y > 0 && speed.x != 0)   //Diagonal upward Movement
-                {
-                    rug.velocity = new Vector3(rug.velocity.x + (speed.x * Time.fixedDeltaTime), rug.velocity.y);
+                    if (speed.y <= 0) //Downward Diagonal Movement
+                    {
+                        rug.velocity = (Vector3)rug.velocity + (speed * Time.fixedDeltaTime);
+                    }
+                    else if (speed.y > 0 && speed.x != 0)   //Diagonal upward Movement
+                    {
+                        rug.velocity = new Vector3(rug.velocity.x + (speed.x * Time.fixedDeltaTime), rug.velocity.y);
+                    }
                 }
             }
         }
@@ -133,12 +137,32 @@ public abstract class MovingPlatform : MonoBehaviour
                 //}
             }
         }
+
+        if (collision.collider.tag == "Player")
+        {
+            if (collision.collider.transform.position.y > transform.position.y + Yoffset && playerSpeeds.GetThePower())
+            {
+                if(!(speed.x == 0 || speed.y == 0))
+                {
+                    playerSpeeds.SetCoyoteX(speed.x / platformStrScalar);
+                    playerSpeeds.SetCoyoteY(speed.y / platformStrScalar);
+                    playerSpeeds.UpdatePlatformTimer();
+                }
+
+                if (!playerSpeeds.isJumping)
+                {
+                    playerSpeeds.jOverride = 0;
+                    Debug.Log("222");
+                }
+            }
+        }
+
     }
 
     void OnCollisionExit2D(Collision2D collision)
     {
         RaycastHit2D boxChek = Physics2D.BoxCast(boxer.bounds.center + new Vector3(0, .1f, 0), boxer.size, 0, Vector2.up, 5, 1 << LayerMask.NameToLayer("Player"));
-
+        Debug.Log("launch");
         Rigidbody2D rib = collision.collider.GetComponent<Rigidbody2D>();
         if (rib != null)
         {
@@ -146,7 +170,7 @@ public abstract class MovingPlatform : MonoBehaviour
         }
         if (collision.collider.tag == "Player")
         {
-            if(collision.collider.transform.position.y > transform.position.y + Yoffset)
+            if(collision.collider.transform.position.y > transform.position.y + Yoffset && playerSpeeds.GetThePower())
             {
                 playerSpeeds.airSpeed = speed.x / platformStrScalar;
                 if (speed.y <= 280)
@@ -156,13 +180,12 @@ public abstract class MovingPlatform : MonoBehaviour
                 if (!playerSpeeds.isJumping)
                 {
                     playerSpeeds.jOverride = 0;
-                    Debug.Log("222");
+
                 }
 
                 if(speed.y < 0)
                 {
                     rib.velocity = (Vector3)rib.velocity + (.6f * -speed * Time.fixedDeltaTime);
-                    Debug.Log("Slowing");
                 }
             }
         }

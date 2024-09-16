@@ -6,7 +6,7 @@ public abstract class BaseEnemyMovement : MonoBehaviour
 {
 
     public Rigidbody2D regigigas;
-    public GameObject playPoPiPo;
+    public GameObject player;
     public float speed;
     public float detectionRange;
     public float detectionGroundRange = 3;
@@ -34,7 +34,7 @@ public abstract class BaseEnemyMovement : MonoBehaviour
     public void Start()
     {
         regigigas = GetComponent<Rigidbody2D>();
-        playPoPiPo = GameObject.FindGameObjectWithTag("Player");
+        player = GameObject.FindGameObjectWithTag("Player");
         lastIdlePos = transform.position;
         boxy = GetComponent<BoxCollider2D>();
         animo = GetComponent<Animator>();
@@ -103,7 +103,7 @@ public abstract class BaseEnemyMovement : MonoBehaviour
         }
 
 
-        RaycastHit2D hitio = Physics2D.Raycast(gameObject.transform.position, playPoPiPo.transform.position - gameObject.transform.position, 100f, (1 << LayerMask.NameToLayer("Player")) | (1 << LayerMask.NameToLayer("Ground")));
+        RaycastHit2D hitio = Physics2D.Raycast(gameObject.transform.position, player.transform.position - gameObject.transform.position, 100f, (1 << LayerMask.NameToLayer("Player")) | (1 << LayerMask.NameToLayer("Ground")));
         if(hitio && hitio.collider.tag == "Player")
         {
             inLOS = true;
@@ -247,7 +247,10 @@ public abstract class BaseEnemyMovement : MonoBehaviour
             return BillieRayCyrus;
     }
 
-
+    public int RNG(int min, int max)
+    {
+        return Random.Range(min, max);
+    }
 
 
 }

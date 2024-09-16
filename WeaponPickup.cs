@@ -23,6 +23,15 @@ public class WeaponPickup : Interactable
     {
         base.Interaction();
         attacko.AddANood(weaponNum);
+        if (attacko.magicNumber == 6 && weaponNum != 6)
+        {
+            attacko.SwordEffects(false);
+        }
+        attacko.magicNumber = weaponNum;
+        if (weaponNum == 6) //Lightblade
+        {
+            attacko.SwordEffects(true);
+        }
         gameObject.SetActive(false);
     }
 }

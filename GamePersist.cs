@@ -17,6 +17,7 @@ public class GamePersist : MonoBehaviour
     public Health healths;
     public HealthBar[] barsMan;
     public HealthBar heathBar;
+    public InventoryController invController;
 
     void Awake()
     {
@@ -29,6 +30,7 @@ public class GamePersist : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        invController = FindObjectOfType<InventoryController>();
         inventorys = FindObjectOfType<Inventory>();
         beatBoxin = FindObjectOfType<EnemyManager>();
         loadArea = FindObjectOfType<LoadArea>();
@@ -54,6 +56,7 @@ public class GamePersist : MonoBehaviour
             var json = streamReader.ReadToEnd();
             _saveData = JsonUtility.FromJson<SaveData>(json);
             inventorys.items = _saveData.inventoryData;
+            inventorys.equipment = _saveData.inventoryEquips;
             beatBoxin.deadBoies = _saveData.deadBoies;
             movement.pointCrow = _saveData.levelName;
             attack.allTehUnloks = _saveData.waponUnbocks;
@@ -73,6 +76,7 @@ public class GamePersist : MonoBehaviour
         movement.enabled = true;
         attack.enabled = true;
         heathBar.SetHealthStart(healths.helf);
+        invController.loadRunes();
         loadArea.LoadsSpecLevel(_saveData.levelNombre);
     }
 
@@ -80,6 +84,7 @@ public class GamePersist : MonoBehaviour
     {
         Debug.Log("we are savin");
         _saveData.inventoryData = inventorys.items;
+        _saveData.inventoryEquips = inventorys.equipment;
         _saveData.deadBoies = beatBoxin.deadBoies;
         _saveData.levelName = movement.pointCrow;
         _saveData.levelNombre = SceneManager.GetActiveScene().name;

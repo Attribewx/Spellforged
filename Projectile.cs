@@ -16,13 +16,20 @@ public abstract class Projectile : MonoBehaviour
 
     public void OnTriggerEnter2D(Collider2D collision)
     {
+        ITakeDamage interaction1 = collision.GetComponent<ITakeDamage>();
+        interaction1?.TakeDamage(damage, 0, 0, Element);
+
         if (collision.tag == "Enemy" || collision.tag == "Boss")
         {
+
             if (explosion != null)
                 Instantiate(explosion, transform.position, Quaternion.identity);
-            collision.GetComponent<Health>().TakeDamage(damage, 0, 0, Element);
+
+
             if (pSExplosion != null)
                 Instantiate(pSExplosion, transform.position, Quaternion.identity);
+
+
             FindObjectOfType<AudioManager>().Play2("PONCH");
         }
 
@@ -43,9 +50,15 @@ public abstract class Projectile : MonoBehaviour
             if (explosion != null)
                 Instantiate(explosion, transform.position, Quaternion.identity);
             if (collision.transform.position.x < transform.position.x)
-                collision.GetComponent<Health>().TakeDamage(damage, -100, 400, Element);
+            {
+                ITakeDamage interaction = collision.GetComponent<ITakeDamage>();
+                interaction?.TakeDamage(damage, 0, 0, Element);
+            }
             else
-                collision.GetComponent<Health>().TakeDamage(damage, 100, 400, Element);
+            {
+                ITakeDamage interaction = collision.GetComponent<ITakeDamage>();
+                interaction?.TakeDamage(damage, 0, 0, Element);
+            }
         }
     }
 

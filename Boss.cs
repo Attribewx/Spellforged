@@ -9,12 +9,15 @@ public abstract class Boss : MonoBehaviour
     [HideInInspector] public bool canMove;
     [HideInInspector] public Rigidbody2D rig;
     [HideInInspector] public Animator anim;
+    public string songName;
     public float attackTime = 1;
     public float moveTime = 1;
-    public float activationDist = 8;
+    [Header("Activation Settings")] public float activationDist = 8;
+    public Vector3 activationOffset;
     private bool idleCheck;
     private BossHealthBar bHB;
     private Health health;
+    private bool oneTime;
 
     public virtual void Start()
     {
@@ -23,6 +26,8 @@ public abstract class Boss : MonoBehaviour
         rig = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         bHB = FindObjectOfType<BossHealthBar>();
+        if (!health)
+            health = GetComponentInChildren<Health>();
         bHB.FindBoss();
     }
 
@@ -34,6 +39,7 @@ public abstract class Boss : MonoBehaviour
         if (!idleCheck && DistanceToPlayer() < activationDist)
         {
             idleCheck = true;
+            PlayTheme(songName);
             bHB = FindObjectOfType<BossHealthBar>();
             bHB.FindBoss();
             if (bHB)
@@ -45,6 +51,11 @@ public abstract class Boss : MonoBehaviour
 
         if(idleCheck && health.helf > 0)
             CheckTimes();
+
+        if(health.helf <= 0)
+        {
+            PlayTheme("");
+        }
     }
 
 
@@ -72,7 +83,7 @@ public abstract class Boss : MonoBehaviour
 
     public float DistanceToPlayer()
     {
-        return Vector3.Distance(playerLoc.position, transform.position);
+        return Vector3.Distance(playerLoc.position, transform.position + activationOffset);
     }
 
     public void SetMove(bool b)
@@ -118,6 +129,18 @@ public abstract class Boss : MonoBehaviour
             transform.localScale = new Vector3(dir, transform.localScale.y, 2);
         }
     }
+    public void SetLeftRightFlying(float dir)
+    {
+        if (playerLoc.position.x < transform.position.x - .5f)
+        {
+            transform.localScale = new Vector3(-dir, transform.localScale.y, 2);
+        }
+        else if (playerLoc.position.x > transform.position.x + .5f)
+        {
+            transform.localScale = new Vector3(dir, transform.localScale.y, 2);
+        }
+    }
+
 
     public Transform GetPlayerPos()
     {
@@ -136,6 +159,19 @@ public abstract class Boss : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.DrawWireSphere(transform.position, activationDist);
+        Gizmos.DrawWireSphere(transform.position + activationOffset, activationDist);
+    }
+
+    public void PlayTheme(string songName)
+    {
+        if (songName.Length > 0)
+        {
+            AudioManager.arduino.Play(songName);
+            AudioManager.arduino.BossMix(true);
+        }
+        else
+        {
+            AudioManager.arduino.BossMix(false);
+        }
     }
 }
